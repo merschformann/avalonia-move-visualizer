@@ -72,7 +72,7 @@ namespace avalonia_animation
             public bool Equals(ICustomDrawOperation other) => false;
 
             private static readonly SKPaint ZombieFill = new SKPaint {Style = SKPaintStyle.Fill, Color = SKColors.LimeGreen};
-            private static readonly SKPaint ZombieOutline = new SKPaint {Style = SKPaintStyle.Stroke, Color = SKColors.Black, StrokeWidth = 5};
+            private static readonly SKPaint ZombieOutline = new SKPaint {Style = SKPaintStyle.Stroke, Color = SKColors.Black, StrokeWidth = 5, IsAntialias = true};
 
             /// <summary>
             /// Rotates the given path around cx, cy and then pushes it to nx, ny.
