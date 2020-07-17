@@ -52,12 +52,13 @@ namespace avalonia_animation
         /// </summary>
         private class ZombieDrawOp : ICustomDrawOperation
         {
-            private readonly FormattedText _noSkia;
+            private static readonly SKPaint ZombieFill = new SKPaint {Style = SKPaintStyle.Fill, Color = SKColors.LimeGreen};
+            private static readonly SKPaint ZombieOutline = new SKPaint {Style = SKPaintStyle.Stroke, Color = SKColors.Black, StrokeWidth = 5, IsAntialias = true};
+            private static readonly FormattedText NoSkia = new FormattedText {Text = "Current rendering API is not Skia"};
             private readonly List<Zombie> _zombies;
 
-            public ZombieDrawOp(Rect bounds, FormattedText noSkia, List<Zombie> zombies)
+            public ZombieDrawOp(Rect bounds, List<Zombie> zombies)
             {
-                _noSkia = noSkia;
                 _zombies = zombies;
                 Bounds = bounds;
             }
@@ -70,9 +71,6 @@ namespace avalonia_animation
             public Rect Bounds { get; }
             public bool HitTest(Point p) => false;
             public bool Equals(ICustomDrawOperation other) => false;
-
-            private static readonly SKPaint ZombieFill = new SKPaint {Style = SKPaintStyle.Fill, Color = SKColors.LimeGreen};
-            private static readonly SKPaint ZombieOutline = new SKPaint {Style = SKPaintStyle.Stroke, Color = SKColors.Black, StrokeWidth = 5, IsAntialias = true};
 
             /// <summary>
             /// Rotates the given path around cx, cy and then pushes it to nx, ny.
@@ -128,7 +126,7 @@ namespace avalonia_animation
             {
                 var canvas = (context as ISkiaDrawingContextImpl)?.SkCanvas;
                 if (canvas == null)
-                    context.DrawText(Brushes.Black, new Point(), _noSkia.PlatformImpl);
+                    context.DrawText(Brushes.Black, new Point(), NoSkia.PlatformImpl);
                 else
                 {
                     canvas.Save();
@@ -141,8 +139,7 @@ namespace avalonia_animation
 
         public override void Render(DrawingContext context)
         {
-            var noSkia = new FormattedText {Text = "Current rendering API is not Skia"};
-            context.Custom(new ZombieDrawOp(new Rect(0, 0, Bounds.Width, Bounds.Height), noSkia, _zombies));
+            context.Custom(new ZombieDrawOp(new Rect(0, 0, Bounds.Width, Bounds.Height), _zombies));
             Dispatcher.UIThread.InvokeAsync(InvalidateVisual, DispatcherPriority.Background);
         }
     }
