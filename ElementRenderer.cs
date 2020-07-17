@@ -52,8 +52,10 @@ namespace avalonia_animation
         /// </summary>
         private class ZombieDrawOp : ICustomDrawOperation
         {
+            private static readonly SKPaint DotFill = new SKPaint {Style = SKPaintStyle.Fill, Color = SKColors.Black, IsAntialias = true};
             private static readonly SKPaint ZombieFill = new SKPaint {Style = SKPaintStyle.Fill, Color = SKColors.LimeGreen};
             private static readonly SKPaint ZombieOutline = new SKPaint {Style = SKPaintStyle.Stroke, Color = SKColors.Black, StrokeWidth = 5, IsAntialias = true};
+            private static readonly SKPaint ZombieDebug = new SKPaint {Style = SKPaintStyle.Fill, Color = SKColors.OrangeRed, IsAntialias = true};
             private static readonly FormattedText NoSkia = new FormattedText {Text = "Current rendering API is not Skia"};
             private readonly List<Zombie> _zombies;
 
@@ -94,32 +96,37 @@ namespace avalonia_animation
                 path.Transform(result);
             }
 
+            private void RenderContent(SKCanvas canvas)
+            {
+                RenderDots(canvas);
+                RenderZombies(canvas);
+            }
+
+            private void RenderDots(SKCanvas canvas)
+            {
+                for (var x = 100; x < Bounds.Width; x += 100)
+                    for (var y = 100; y < Bounds.Height; y += 100)
+                        canvas.DrawCircle(x, y, 10, DotFill);
+            }
+
             private void RenderZombies(SKCanvas canvas)
             {
-                canvas.Save();
-
-                if (_zombies != null)
-                    foreach (var t in _zombies)
-                    {
-                        // Determine coordinates
-                        var (l, w) = ((float) t.LengthX, (float) t.LengthY);
-                        var (cx, cy) = (l / 2.0f, w / 2.0f);
-                        var (px, py) = ((float) t.X, (float) t.Y);
-                        // Draw basic frame
-                        var path = new SKPath();
-                        path.AddRect(new SKRect(0, 0, l, w));
-                        RotateAndTranslate(path, (float) Util.RadToDeg(t.Orientation), cx, cy, px, py);
-                        canvas.DrawPath(path, ZombieFill);
-                        canvas.DrawPath(path, ZombieOutline);
-                        // Add an orientation marker
-                        path = new SKPath();
-                        path.MoveTo(cx, cy);
-                        path.LineTo(w, cy);
-                        RotateAndTranslate(path, (float) Util.RadToDeg(t.Orientation), cx, cy, px, py);
-                        canvas.DrawPath(path, ZombieOutline);
-                    }
-
-                canvas.Restore();
+                if (_zombies == null) return;
+                foreach (var t in _zombies)
+                {
+                    // Determine coordinates
+                    var (l, w) = ((float) t.LengthX, (float) t.LengthY);
+                    var (cx, cy) = (l / 2.0f, w / 2.0f);
+                    var (px, py) = ((float) t.X, (float) t.Y);
+                    // Draw rectangle with orientation marker
+                    var path = new SKPath();
+                    path.MoveTo(cx,cy);
+                    path.LineTo(l, cy);
+                    path.AddRect(new SKRect(0, 0, l, w));
+                    RotateAndTranslate(path, (float) Util.RadToDeg(t.Orientation), cx, cy, px, py);
+                    canvas.DrawPath(path, ZombieFill);
+                    canvas.DrawPath(path, ZombieOutline);
+                }
             }
 
             public void Render(IDrawingContextImpl context)
@@ -130,7 +137,7 @@ namespace avalonia_animation
                 else
                 {
                     canvas.Save();
-                    RenderZombies(canvas);
+                    RenderContent(canvas);
                     canvas.Restore();
                 }
             }
