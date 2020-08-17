@@ -86,13 +86,13 @@ namespace avalonia_animation
             /// <param name="ny">The new center y-coordinate to move the path to.</param>
             private static void RotateAndTranslate(SKPath path, float degrees, float cx, float cy, float nx, float ny)
             {
-                var result = SKMatrix.MakeIdentity();
-                var translate = SKMatrix.MakeTranslation(-cx, -cy);
-                var rotate = SKMatrix.MakeRotationDegrees(degrees);
-                var translate2 = SKMatrix.MakeTranslation(nx, ny);
-                SKMatrix.PostConcat(ref result, translate);
-                SKMatrix.PostConcat(ref result, rotate);
-                SKMatrix.PostConcat(ref result, translate2);
+                var result = SKMatrix.CreateIdentity();
+                var translate = SKMatrix.CreateTranslation(-cx, -cy);
+                var rotate = SKMatrix.CreateRotationDegrees(degrees);
+                var translate2 = SKMatrix.CreateTranslation(nx, ny);
+                result = result.PostConcat(translate);
+                result = result.PostConcat(rotate);
+                result = result.PostConcat(translate2);
                 path.Transform(result);
             }
 
@@ -105,8 +105,8 @@ namespace avalonia_animation
             private void RenderDots(SKCanvas canvas)
             {
                 for (var x = 100; x < Bounds.Width; x += 100)
-                    for (var y = 100; y < Bounds.Height; y += 100)
-                        canvas.DrawCircle(x, y, 10, DotFill);
+                for (var y = 100; y < Bounds.Height; y += 100)
+                    canvas.DrawCircle(x, y, 10, DotFill);
             }
 
             private void RenderZombies(SKCanvas canvas)
@@ -120,7 +120,7 @@ namespace avalonia_animation
                     var (px, py) = ((float) t.X, (float) t.Y);
                     // Draw rectangle with orientation marker
                     var path = new SKPath();
-                    path.MoveTo(cx,cy);
+                    path.MoveTo(cx, cy);
                     path.LineTo(l, cy);
                     path.AddRect(new SKRect(0, 0, l, w));
                     RotateAndTranslate(path, (float) Util.RadToDeg(t.Orientation), cx, cy, px, py);

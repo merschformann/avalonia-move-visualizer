@@ -5,7 +5,6 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.VisualTree;
-using SharpDX.Direct3D11;
 
 namespace avalonia_animation
 {
